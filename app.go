@@ -6,7 +6,7 @@ import (
 	"crypto/sha512"
 	"encoding/hex"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -57,16 +57,16 @@ type Message struct {
 	SentAt     time.Time              `json:"sent_at"`
 }
 
-func (self *Message) Get(key string, fallback ...interface{}) typeutil.Variant {
-	return typeutil.V(maputil.Get(self.Payload, key, fallback...))
+func (app *Message) Get(key string, fallback ...interface{}) typeutil.Variant {
+	return typeutil.V(maputil.Get(app.Payload, key, fallback...))
 }
 
-func (self *Message) Set(key string, value interface{}) {
-	if self.Payload == nil {
-		self.Payload = make(map[string]interface{})
+func (app *Message) Set(key string, value interface{}) {
+	if app.Payload == nil {
+		app.Payload = make(map[string]interface{})
 	}
 
-	maputil.Set(self.Payload, key, value)
+	maputil.Set(app.Payload, key, value)
 }
 
 type AppConfig struct {
@@ -88,35 +88,35 @@ type App struct {
 	messages chan *Message
 }
 
-func (self *App) SetWindow(win Messagable) {
-	self.window = win
+func (app *App) SetWindow(win Messagable) {
+	app.window = win
 }
 
 // Ensures that the application configuration is able to be run.
-func (self *App) Validate() error {
-	if self.fs == nil {
-		var r = bytes.NewReader(self.bundle)
+func (app *App) Validate() error {
+	if app.fs == nil {
+		var r = bytes.NewReader(app.bundle)
 
 		if zr, err := zip.NewReader(r, int64(r.Len())); err == nil {
-			self.fs = zipfs.New(&zip.ReadCloser{
+			app.fs = zipfs.New(&zip.ReadCloser{
 				Reader: *zr,
-			}, filepath.Base(self.path))
+			}, filepath.Base(app.path))
 		} else {
 			return fmt.Errorf("bad bundle: zip: %v", err)
 		}
 	}
 
 	// only attempt the config load on the first Validate call (which will make this non-nil)
-	if self.Config == nil {
-		if appyaml, err := self.fs.Open(AppConfigFilename); err == nil {
-			if self.Config == nil {
-				self.Config = new(AppConfig)
+	if app.Config == nil {
+		if appyaml, err := app.fs.Open(AppConfigFilename); err == nil {
+			if app.Config == nil {
+				app.Config = new(AppConfig)
 			}
 
-			if b, err := ioutil.ReadAll(appyaml); err == nil && len(b) > 0 {
-				defaults.SetDefaults(self.Config)
+			if b, err := io.ReadAll(appyaml); err == nil && len(b) > 0 {
+				defaults.SetDefaults(app.Config)
 
-				if err := yaml.UnmarshalStrict(b, self.Config); err != nil {
+				if err := yaml.UnmarshalStrict(b, app.Config); err != nil {
 					return fmt.Errorf("app.yaml: %v", err)
 				}
 			} else {
@@ -127,37 +127,37 @@ func (self *App) Validate() error {
 		}
 	}
 
-	if self.Config.Backend == nil {
-		self.Config.Backend = new(diecast.Server)
+	if app.Config.Backend == nil {
+		app.Config.Backend = new(diecast.Server)
 	}
 
-	if self.Config.Services == nil {
-		self.Config.Services = new(ProcessManager)
+	if app.Config.Services == nil {
+		app.Config.Services = new(ProcessManager)
 	}
 
-	self.messages = make(chan *Message, AppMessageBuffer)
+	app.messages = make(chan *Message, AppMessageBuffer)
 
 	return nil
 }
 
 // Blocking start and run of the application and all containers.
-func (self *App) Run(workers ...AppFunc) error {
-	if err := self.Validate(); err != nil {
+func (app *App) Run(workers ...AppFunc) error {
+	if err := app.Validate(); err != nil {
 		return err
 	}
 
 	// get services going (if any)
-	if err := self.Config.Services.Initialize(); err != nil {
+	if err := app.Config.Services.Initialize(); err != nil {
 		return err
 	}
 
-	if self.Config.Backend.Address == `` {
-		self.Config.Backend.Address = `127.0.0.1:0`
+	if app.Config.Backend.Address == `` {
+		app.Config.Backend.Address = `127.0.0.1:0`
 	}
 
 	// the rootfs is whatever this app bundle's FS is
-	self.Config.Backend.SetFileSystem(&vfsToHttpFsAdapter{self.fs})
-	self.registerHydraApi(self.Config.Backend)
+	app.Config.Backend.SetFileSystem(&vfsToHttpFsAdapter{app.fs})
+	app.registerHydraApi(app.Config.Backend)
 
 	// diecast has its *own* async callback mechanism which signals when the server
 	// is running on whatever network it's supposed to.  this is especially useful
@@ -168,18 +168,18 @@ func (self *App) Run(workers ...AppFunc) error {
 
 	for _, worker := range workers {
 		dcworkers = append(dcworkers, func(dc *diecast.Server) error {
-			self.Config.URL = dc.LocalURL()
-			log.Infof("webserver listening at %s", self.Config.URL)
-			return worker(self)
+			app.Config.URL = dc.LocalURL()
+			log.Infof("webserver listening at %s", app.Config.URL)
+			return worker(app)
 		})
 	}
 
-	return self.Config.Backend.Serve(dcworkers...)
+	return app.Config.Backend.Serve(dcworkers...)
 }
 
-func (self *App) registerHydraApi(dc *diecast.Server) {
+func (app *App) registerHydraApi(dc *diecast.Server) {
 	dc.Delete(`/hydra`, func(w http.ResponseWriter, req *http.Request) {
-		go self.Config.Services.Stop(false)
+		go app.Config.Services.Stop(false)
 		httputil.RespondJSON(w, nil, http.StatusAccepted)
 	})
 
@@ -204,7 +204,7 @@ func (self *App) registerHydraApi(dc *diecast.Server) {
 	})
 
 	dc.Get(`/hydra/v1/app`, func(w http.ResponseWriter, req *http.Request) {
-		httputil.RespondJSON(w, self)
+		httputil.RespondJSON(w, app)
 	})
 
 	dc.Post(`/hydra/v1/message`, func(w http.ResponseWriter, req *http.Request) {
@@ -217,7 +217,7 @@ func (self *App) registerHydraApi(dc *diecast.Server) {
 
 			msg.ReceivedAt = time.Now()
 
-			if reply, err := self.window.Send(msg); err == nil {
+			if reply, err := app.window.Send(msg); err == nil {
 				httputil.RespondJSON(w, reply)
 			} else {
 				httputil.RespondJSON(w, err)
@@ -241,7 +241,7 @@ func LoadApp(loadpath string) (*App, error) {
 		Timeout: time.Second,
 	}); err == nil {
 
-		if b, err := ioutil.ReadAll(bundle); err == nil {
+		if b, err := io.ReadAll(bundle); err == nil {
 			app.bundle = b
 		} else {
 			return nil, err

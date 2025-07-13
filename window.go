@@ -7,7 +7,6 @@ import (
 	"unsafe"
 
 	"github.com/ghetzel/go-stockutil/log"
-	"github.com/ghetzel/go-stockutil/typeutil"
 	webview "github.com/webview/webview_go"
 )
 
@@ -39,6 +38,7 @@ type Messagable interface {
 }
 
 type Window struct {
+	Config     *AppConfig
 	app        *App
 	view       webview.WebView
 	didInit    bool
@@ -58,105 +58,127 @@ func CreateWindow(app *App) *Window {
 	}
 
 	win.app = app
+	win.Config = app.Config
+
 	app.SetWindow(win)
 
 	return win
 }
 
-func (self *Window) init() error {
-	if self.view == nil {
+func CreateWindowWithConfig(config *AppConfig) *Window {
+	var win = new(Window)
+
+	if nw := NativeWindowFactory; nw != nil {
+		win.view = webview.NewWindow(true, nw.Pointer())
+	} else {
+		win.view = webview.New(true)
+	}
+
+	win.Config = config
+	return win
+}
+
+func (window *Window) init() error {
+	if window.view == nil {
 		return fmt.Errorf("cannot open window: no view")
 	}
 
-	if self.app == nil {
-		return fmt.Errorf("cannot open window: no app")
+	if window.app == nil {
+		if window.Config == nil {
+			return fmt.Errorf("cannot open window: no app")
+		}
 	}
 
-	if self.didInit {
+	if window.didInit {
 		return nil
 	} else {
 		if jslib, err := FS.ReadFile(WindowEmbeddedLibraryPath); err == nil {
-			self.view.Init(string(jslib))
+			window.view.Init(string(jslib))
 		} else {
 			return err
 		}
 
-		self.SetTitle(self.app.Config.Name)
-		self.Resize(self.app.Config.Width, self.app.Config.Height)
+		window.SetTitle(window.Config.Name)
+		window.Resize(window.Config.Width, window.Config.Height)
 
-		if self.app.Config.Fullscreen {
-			self.Fullscreen(true)
+		if window.Config.Fullscreen {
+			window.Fullscreen(true)
 		}
 
-		self.Navigate(typeutil.OrString(self.app.Config.URL, AppDefaultURL))
-		self.didInit = true
+		window.Navigate(window.Config.URL)
+		window.didInit = true
 	}
 
 	return nil
 }
 
-func (self *Window) Run() error {
-	if err := self.init(); err != nil {
+func (window *Window) Run() error {
+	if err := window.init(); err != nil {
 		return err
 	}
 
-	go log.FatalIf(self.app.Run(func(a *App) error {
-		go a.Config.Services.Run()
-		return nil
-	}))
+	if window.app != nil {
+		go log.FatalIf(window.app.Run(func(a *App) error {
+			go a.Config.Services.Run()
+			return nil
+		}))
+	}
 
-	self.Navigate(typeutil.OrString(self.app.Config.URL, AppDefaultURL))
-	self.view.Run()
-	self.Wait()
+	log.Debugf("opening window to URL %q", window.Config.URL)
+	window.Navigate(window.Config.URL)
+	window.view.Run()
+	window.Wait()
 
-	return self.lasterr
+	return window.lasterr
 }
 
-func (self *Window) Destroy() error {
-	self.app.Config.Services.Stop(false)
-	self.view.Destroy()
+func (window *Window) Destroy() error {
+	window.app.Config.Services.Stop(false)
+	window.view.Destroy()
 	return nil
 }
 
-func (self *Window) Wait() {
-	self.app.Config.Services.Wait()
+func (window *Window) Wait() {
+	if svc := window.Config.Services; svc != nil {
+		svc.Wait()
+	}
 	log.Debugf("window and all apps stopped")
 }
 
-func (self *Window) Navigate(url string) error {
-	self.view.Navigate(url)
+func (window *Window) Navigate(url string) error {
+	window.view.Navigate(url)
 	return nil
 }
 
-func (self *Window) SetTitle(title string) error {
-	self.view.SetTitle(title)
+func (window *Window) SetTitle(title string) error {
+	window.view.SetTitle(title)
 	return nil
 }
 
-func (self *Window) Move(x int, y int) error {
+func (window *Window) Move(x int, y int) error {
 	return fmt.Errorf("Move: Not Implemented")
 }
 
-func (self *Window) Resize(w int, h int) error {
-	self.w = w
-	self.h = h
-	self.view.SetSize(w, h, webview.HintNone)
+func (window *Window) Resize(w int, h int) error {
+	window.w = w
+	window.h = h
+	window.view.SetSize(w, h, webview.HintNone)
 	return nil
 }
 
-func (self *Window) Fullscreen(on bool) error {
-	self.fullscreen = on
+func (window *Window) Fullscreen(on bool) error {
+	window.fullscreen = on
 
-	if self.fullscreen {
-		self.view.SetSize(0, 0, webview.HintMax&webview.HintFixed)
+	if window.fullscreen {
+		window.view.SetSize(0, 0, webview.HintMax&webview.HintFixed)
 	} else {
-		self.Resize(self.w, self.h)
+		window.Resize(window.w, window.h)
 	}
 
 	return nil
 }
 
-func (self *Window) Send(req *Message) (*Message, error) {
+func (window *Window) Send(req *Message) (*Message, error) {
 	var reply = new(Message)
 	var err error
 
@@ -172,15 +194,15 @@ func (self *Window) Send(req *Message) (*Message, error) {
 	case `resize`:
 		var w = req.Get(`w`, WindowDefaultWidth).NInt()
 		var h = req.Get(`h`, WindowDefaultHeight).NInt()
-		err = self.Resize(w, h)
+		err = window.Resize(w, h)
 
 	case `move`:
 		var x = req.Get(`x`).NInt()
 		var y = req.Get(`y`).NInt()
-		err = self.Move(x, y)
+		err = window.Move(x, y)
 
 	case `start`, `stop`, `restart`:
-		for _, program := range self.app.Config.Services.Manager.Programs() {
+		for _, program := range window.app.Config.Services.Manager.Programs() {
 			var e error
 
 			switch req.ID {
