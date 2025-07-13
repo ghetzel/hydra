@@ -14,8 +14,8 @@ var globalSignal = make(chan os.Signal, 1)
 func main() {
 	app := cli.NewApp()
 	app.Name = `hydra`
-	app.Usage = `do dev things`
-	app.Version = `0.2.0`
+	app.Usage = `Standalone browser-based UI application runner`
+	app.Version = `0.2.1`
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
