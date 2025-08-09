@@ -1,12 +1,16 @@
 .EXPORT_ALL_VARIABLES:
 
 CGO_ENABLED  = 1
-CGO_CFLAGS   = -I/opt/homebrew/include -arch x86_64
-CGO_LDFLAGS  = -L/opt/homebrew/lib
 BUNDLES     += default.zip
 BUNDLES     += dockmaster.zip
+OS          := $(shell uname -s)
+
+ifeq ($(OS),Darwin)
+CGO_CFLAGS   = -I/opt/homebrew/include -arch x86_64
+CGO_LDFLAGS  = -L/opt/homebrew/lib
 GOOS         = darwin
 GOARCH       = amd64
+endif
 
 build: bin/hydra
 
