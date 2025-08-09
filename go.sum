@@ -56,6 +56,8 @@ github.com/ghetzel/uuid v0.0.0-20171129191014-dec09d789f3d h1:YVJe7KwVYazt90hCc/
 github.com/ghetzel/uuid v0.0.0-20171129191014-dec09d789f3d/go.mod h1:7CCemW/spiphukVWb/v2WWYeZkydh30TwSRBh48irZQ=
 github.com/ghetzel/webview_go v0.11.1 h1:t68k5lZdN3lw/i0Bq+udtVkrC3N9s8PBoY7uJXBgWrk=
 github.com/ghetzel/webview_go v0.11.1/go.mod h1:SCE07IO8ZJeHgIJA8IerqK+DAxU2tMW855E6s9v6FaM=
+github.com/ghetzel/webview_go v0.11.2 h1:8brwXX2p8FkhBUCWgjsss7HO0vKpjVJAttBv+EXBXMc=
+github.com/ghetzel/webview_go v0.11.2/go.mod h1:SCE07IO8ZJeHgIJA8IerqK+DAxU2tMW855E6s9v6FaM=
 github.com/ghodss/yaml v1.0.0 h1:wQHKEahhL6wmXdzwWG11gIVCkOv05bNOh+Rxn0yngAk=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/go-cmd/cmd v1.4.3 h1:6y3G+3UqPerXvPcXvj+5QNPHT02BUw7p6PsqRxLNA7Y=
