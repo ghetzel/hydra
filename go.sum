@@ -1,6 +1,5 @@
 aahframework.org/test.v0 v0.0.0-20170303192812-d14ae1dc852d/go.mod h1:Dc0WOMD7SnuzGgAI29bLYayM5XoDr+Iha/jfObqPwhA=
 bou.ke/monkey v1.0.2/go.mod h1:OqickVX3tNx6t33n1xvtTtu85YN5s6cKwVug+oHMaIA=
-cloud.google.com/go/compute v1.10.0 h1:aoLIYaA1fX3ywihqpBk2APQKOo20nXsp1GEZQbx5Jk4=
 cloud.google.com/go/compute/metadata v0.7.0 h1:PBWF+iiAerVNe8UCHxdOt6eHLVc3ydFeOCw78U8ytSU=
 cloud.google.com/go/compute/metadata v0.7.0/go.mod h1:j5MvL9PprKL39t166CoB1uVHfQMs4tFQZZcKwksXUjo=
 github.com/GehirnInc/crypt v0.0.0-20230320061759-8cc1b52080c5 h1:IEjq88XO4PuBDcvmjQJcQGg+w+UaafSy8G5Kcb5tBhI=
@@ -55,6 +54,8 @@ github.com/ghetzel/ratelimit v0.0.0-20200513232932-b28727c55ae1 h1:KfDxB2gpWQHs1
 github.com/ghetzel/ratelimit v0.0.0-20200513232932-b28727c55ae1/go.mod h1:7BKIbIjUwrh5+v/WVH65Hqmd6c3urtmR6YBhlRXFR18=
 github.com/ghetzel/uuid v0.0.0-20171129191014-dec09d789f3d h1:YVJe7KwVYazt90hCc/q2dYJVS3062AY6QdT6iHd+Kh8=
 github.com/ghetzel/uuid v0.0.0-20171129191014-dec09d789f3d/go.mod h1:7CCemW/spiphukVWb/v2WWYeZkydh30TwSRBh48irZQ=
+github.com/ghetzel/webview_go v0.11.1 h1:t68k5lZdN3lw/i0Bq+udtVkrC3N9s8PBoY7uJXBgWrk=
+github.com/ghetzel/webview_go v0.11.1/go.mod h1:SCE07IO8ZJeHgIJA8IerqK+DAxU2tMW855E6s9v6FaM=
 github.com/ghodss/yaml v1.0.0 h1:wQHKEahhL6wmXdzwWG11gIVCkOv05bNOh+Rxn0yngAk=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/go-cmd/cmd v1.4.3 h1:6y3G+3UqPerXvPcXvj+5QNPHT02BUw7p6PsqRxLNA7Y=
@@ -209,8 +210,6 @@ github.com/uber/jaeger-lib v2.4.1+incompatible/go.mod h1:ComeNDZlWwrWnDv8aPp0Ba6
 github.com/ulikunitz/xz v0.5.6/go.mod h1:2bypXElzHzzJZwzH67Y6wb67pO62Rzfn7BSiF4ABRW8=
 github.com/urfave/negroni v1.0.0 h1:kIimOitoypq34K7TG7DUaJ9kq/N4Ofuwi1sjz0KipXc=
 github.com/urfave/negroni v1.0.0/go.mod h1:Meg73S6kFm/4PpbYdq35yYWoCZ9mS/YSx+lKnmiohz4=
-github.com/webview/webview_go v0.0.0-20240831120633-6173450d4dd6 h1:VQpB2SpK88C6B5lPHTuSZKb2Qee1QWwiFlC5CKY4AW0=
-github.com/webview/webview_go v0.0.0-20240831120633-6173450d4dd6/go.mod h1:yE65LFCeWf4kyWD5re+h4XNvOHJEXOCOuJZ4v8l5sgk=
 github.com/yosssi/gohtml v0.0.0-20201013000340-ee4748c638f4 h1:0sw0nJM544SpsihWx1bkXdYLQDlzRflMgFJQ4Yih9ts=
 github.com/yosssi/gohtml v0.0.0-20201013000340-ee4748c638f4/go.mod h1:+ccdNT0xMY1dtc5XBxumbYfOUhmduiGudqaDgD2rVRE=
 github.com/ysmood/fetchup v0.2.3 h1:ulX+SonA0Vma5zUFXtv52Kzip/xe7aj4vqT5AJwQ+ZQ=

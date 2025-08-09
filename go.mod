@@ -10,7 +10,7 @@ require (
 	github.com/ghetzel/go-stockutil v1.13.0
 	github.com/ghetzel/procwatch v0.6.0
 	github.com/mcuadros/go-defaults v1.2.0
-	github.com/webview/webview_go v0.0.0-20240831120633-6173450d4dd6
+	github.com/ghetzel/webview_go v0.11.1
 	golang.org/x/tools v0.35.0
 	gopkg.in/yaml.v2 v2.4.0
 )

@@ -7,7 +7,7 @@ import (
 	"unsafe"
 
 	"github.com/ghetzel/go-stockutil/log"
-	webview "github.com/webview/webview_go"
+	webview "github.com/ghetzel/webview_go"
 )
 
 //go:embed lib/js/*.js
