@@ -268,11 +268,12 @@ func FindAppByName(name string) (*App, error) {
 	}
 
 	for _, candidate := range candidates {
-		if fileutil.Exists(candidate) {
-			log.Noticef("find: matched %s", candidate)
-			return LoadApp(candidate)
+		log.Debugf("find: trying %s", candidate)
+
+		if app, err := LoadApp(candidate); err == nil {
+			return app, nil
 		} else {
-			log.Debugf("find: trying %s", candidate)
+			log.Debugf("find: failed %s: %v", candidate, err)
 		}
 	}
 
