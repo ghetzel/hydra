@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/ghetzel/diecast"
+	"github.com/ghetzel/go-stockutil/executil"
 	"github.com/ghetzel/go-stockutil/fileutil"
 	"github.com/ghetzel/go-stockutil/httputil"
 	"github.com/ghetzel/go-stockutil/log"
@@ -24,6 +25,8 @@ import (
 	"golang.org/x/tools/godoc/vfs/zipfs"
 	"gopkg.in/yaml.v2"
 )
+
+var DefaultRemoteTimeout = executil.EnvDuration("HYDRA_REMOTE_TIMEOUT", 30*time.Second)
 
 var AppSearchPaths = func() []string {
 	var head = []string{}
@@ -238,7 +241,7 @@ func LoadApp(loadpath string) (*App, error) {
 	if fileutil.IsNonemptyDir(loadpath) {
 		app.fs = vfs.OS(loadpath)
 	} else if bundle, err := fileutil.OpenWithOptions(loadpath, fileutil.OpenOptions{
-		Timeout: time.Second,
+		Timeout: 10 * time.Second,
 	}); err == nil {
 
 		if b, err := io.ReadAll(bundle); err == nil {
