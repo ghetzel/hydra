@@ -8,7 +8,7 @@ OS          := $(shell uname -s)
 ifeq ($(OS),Darwin)
 CGO_CFLAGS   = -I/opt/homebrew/include -arch x86_64
 CGO_LDFLAGS  = -L/opt/homebrew/lib
-GOOS         = darwin
+GOOS         ?= darwin
 GOARCH       = amd64
 endif
 
