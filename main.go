@@ -15,7 +15,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = `hydra`
 	app.Usage = `Standalone browser-based UI application runner`
-	app.Version = `0.4.3`
+	app.Version = `0.4.4`
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
