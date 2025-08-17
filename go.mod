@@ -9,7 +9,7 @@ require (
 	github.com/ghetzel/procwatch v0.6.0
 	github.com/ghetzel/webview_go v0.12.3
 	github.com/mcuadros/go-defaults v1.2.0
-	golang.org/x/tools v0.35.0
+	golang.org/x/tools v0.34.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
